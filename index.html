@@ -1,0 +1,1922 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>HelloTalk VIP 权益中心</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #ede8e1;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      color: #222;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px 0;
+      overflow-x: hidden;
+    }
+    :root {
+      --phone-w: 402px;
+      --phone-h: 874px;
+      --orange: #ff8a18;
+      --gold: #ffcf45;
+      --deep: #2b2219;
+      --muted: #8c8177;
+      --spring: cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    button {
+      border: 0;
+      font: inherit;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    /* Single Phone Frame (与图二原版完全一致的真实真机滚动容器) */
+    .phone {
+      position: relative;
+      width: min(var(--phone-w), 100vw);
+      height: var(--phone-h);
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 36px;
+      background:
+        radial-gradient(circle at 86% 17%, rgba(255, 202, 72, .33), transparent 24%),
+        radial-gradient(circle at 10% 4%, rgba(255, 255, 255, .76), transparent 30%),
+        linear-gradient(180deg, #fffaf1 0%, #fff2d0 24%, #f6f4f2 54%, #f6f4f2 100%);
+      box-shadow: 0 16px 40px rgba(60, 40, 20, 0.16), 0 0 0 1px rgba(215, 185, 145, 0.35);
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(220, 140, 30, 0.35) transparent;
+    }
+    .phone::-webkit-scrollbar {
+      width: 5px;
+    }
+    .phone::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 48px 0 96px;
+    }
+    .phone::-webkit-scrollbar-thumb {
+      background: rgba(220, 140, 30, 0.38);
+      border-radius: 999px;
+    }
+
+    /* Status Bar */
+    .status {
+      position: sticky;
+      z-index: 12;
+      top: 0;
+      height: 44px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 24px 7px;
+      color: #151515;
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 780;
+      background: linear-gradient(180deg, rgba(255,250,241,.96), rgba(255,250,241,.75));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .silent {
+      position: relative;
+      width: 17px;
+      height: 17px;
+    }
+    .silent::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 5px;
+      width: 10px;
+      height: 8px;
+      background: #151515;
+      clip-path: polygon(0 28%, 42% 28%, 100% 0, 100% 100%, 42% 72%, 0 72%);
+    }
+    .silent::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: -1px;
+      width: 2px;
+      height: 20px;
+      border-radius: 999px;
+      background: #151515;
+      transform: rotate(-42deg);
+      box-shadow: 5px 6px 0 -1px rgba(21,21,21,.72);
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .signal {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 13px;
+    }
+    .signal i {
+      display: block;
+      width: 3px;
+      border-radius: 2px;
+      background: #151515;
+    }
+    .signal i:nth-child(1) { height: 5px; opacity: .7; }
+    .signal i:nth-child(2) { height: 7px; opacity: .82; }
+    .signal i:nth-child(3) { height: 10px; }
+    .signal i:nth-child(4) { height: 13px; }
+    .wifi {
+      position: relative;
+      width: 17px;
+      height: 13px;
+      overflow: hidden;
+    }
+    .wifi::before,
+    .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid #151515;
+      border-color: #151515 transparent transparent transparent;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .wifi::before { width: 25px; height: 25px; top: 3px; }
+    .wifi::after { width: 15px; height: 15px; top: 7px; }
+    .wifi i {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #151515;
+      transform: translateX(-50%);
+    }
+    .battery {
+      position: relative;
+      width: 24px;
+      height: 12px;
+      border: 1.5px solid rgba(21,21,21,.55);
+      border-radius: 4px;
+      padding: 1.5px;
+    }
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 3px;
+      width: 3px;
+      height: 5px;
+      border-radius: 0 2px 2px 0;
+      background: rgba(21,21,21,.36);
+    }
+    .battery i {
+      display: block;
+      width: 15px;
+      height: 100%;
+      border-radius: 2px;
+      background: #151515;
+    }
+
+    /* Top Nav */
+    .nav {
+      position: relative;
+      z-index: 4;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 16px;
+      width: 14px;
+      height: 14px;
+      border-left: 3px solid #292929;
+      border-bottom: 3px solid #292929;
+      border-radius: 2px;
+      transform: rotate(45deg);
+      cursor: pointer;
+    }
+    .nav-title {
+      color: #242424;
+      font-size: 19px;
+      line-height: 1;
+      font-weight: 850;
+    }
+
+    /* Profile Card Header */
+    .profile {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 12px 20px 16px;
+    }
+    .avatar {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      flex: none;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 34%, #fff7e8 0 7px, transparent 8px),
+        radial-gradient(circle at 62% 35%, #fff7e8 0 7px, transparent 8px),
+        radial-gradient(circle at 36% 38%, #2b251f 0 2px, transparent 3px),
+        radial-gradient(circle at 62% 39%, #2b251f 0 2px, transparent 3px),
+        radial-gradient(circle at 50% 52%, #c47b4b 0 3px, transparent 4px),
+        radial-gradient(circle at 50% 52%, #d9a56d 0 20px, transparent 21px),
+        radial-gradient(circle at 26% 23%, #9b6c45 0 12px, transparent 13px),
+        radial-gradient(circle at 73% 25%, #9b6c45 0 12px, transparent 13px),
+        linear-gradient(135deg, #dfb777, #8f6744);
+      box-shadow: 0 8px 18px rgba(153, 102, 40, .18);
+    }
+    .avatar::before,
+    .avatar::after {
+      content: "";
+      position: absolute;
+      top: -1px;
+      width: 18px;
+      height: 18px;
+      background: #9b6c45;
+      clip-path: polygon(50% 0, 0 100%, 100% 100%);
+    }
+    .avatar::before {
+      left: 5px;
+      transform: rotate(-18deg);
+    }
+    .avatar::after {
+      right: 5px;
+      transform: rotate(18deg);
+    }
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .profile-name {
+      color: #1f1f1f;
+      font-size: 24px;
+      line-height: 28px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vip-badge {
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, #ff7a12, #ffc400);
+      font-size: 11px;
+      font-style: italic;
+      line-height: 1;
+      font-weight: 950;
+    }
+    .profile-status {
+      margin-top: 4px;
+      color: #3f3a34;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Sheet Container (与图二原版完全一致的 sticky 底栏共生结构) */
+    .sheet {
+      position: relative;
+      z-index: 3;
+      margin: 0 16px 0;
+      padding: 18px 16px 92px;
+      min-height: 648px;
+      border-radius: 22px 22px 0 0;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 -6px 22px rgba(184, 126, 39, .12);
+    }
+    .sheet-title {
+      margin: 0 0 12px;
+      color: #202020;
+      font-size: 21px;
+      line-height: 26px;
+      font-weight: 900;
+    }
+
+    /* Usage Panel (本周 / 本月切换) */
+    .usage-panel {
+      padding: 12px 0 11px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fff9eb, #fff3d7);
+      box-shadow: inset 0 0 0 1px rgba(255,180,52,.22);
+    }
+    .usage-head,
+    .usage-tabs,
+    .smart-rec {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .usage-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .usage-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .usage-head h2 {
+      margin: 0;
+      color: #2a2118;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 900;
+      transition: color 0.15s ease;
+    }
+    .usage-reset-tip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      line-height: 14px;
+      font-weight: 650;
+      color: #9a7a4d;
+      white-space: nowrap;
+    }
+    .clock-icon {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      stroke: #a86214;
+      stroke-width: 2.2;
+      fill: none;
+    }
+    .countdown-num {
+      font-weight: 850;
+      color: #a84805;
+      font-variant-numeric: tabular-nums;
+    }
+    .period-toggle {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 151, 24, 0.12);
+      padding: 2.5px;
+      border-radius: 999px;
+      gap: 2px;
+      border: 1px solid rgba(255, 160, 40, 0.22);
+    }
+    .period-btn {
+      padding: 3.5px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 850;
+      color: #96672c;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .period-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, #ff8c1a 0%, #ff6c0a 100%);
+      box-shadow: 0 2px 6px rgba(255, 110, 10, 0.28);
+    }
+
+    /* Compact Usage Tabs */
+    .usage-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .usage-tab {
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #8e7354;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(255, 190, 80, 0.22);
+      font-size: 11px;
+      font-weight: 780;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    .usage-tab:active {
+      transform: scale(0.97);
+    }
+    .usage-tab strong {
+      color: #2b2119;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .usage-tab.accent strong { color: #f07b15; }
+
+    /* Horizontal Quota Grid */
+    .usage-grid {
+      display: flex;
+      gap: 8px;
+      margin: 10px 10px 0;
+      padding-bottom: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      touch-action: pan-x pan-y;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .usage-grid::-webkit-scrollbar { display: none; }
+    .quota-card {
+      position: relative;
+      flex: 0 0 158px;
+      min-width: 158px;
+      min-height: 96px;
+      scroll-snap-align: start;
+      padding: 10px 10px 28px;
+      border-radius: 15px;
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.18), transparent 30%),
+        linear-gradient(135deg, #d68424 0%, #aa631f 60%, #70411b 100%);
+      box-shadow: 0 10px 18px rgba(196, 112, 20, .17);
+      cursor: pointer;
+      transition: transform 0.16s var(--spring);
+    }
+    .quota-card:active {
+      transform: scale(0.98);
+    }
+    .quota-card.translate {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.22), transparent 30%),
+        linear-gradient(135deg, #ffa933 0%, #ed861d 62%, #c15f13 100%);
+    }
+    .quota-card.search {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.15), transparent 30%),
+        linear-gradient(135deg, #8b5a29 0%, #67431f 58%, #3f2d22 100%);
+    }
+    .quota-card.ai {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.18), transparent 30%),
+        linear-gradient(135deg, #e1972c 0%, #bd7422 60%, #7e4c1f 100%);
+    }
+    .quota-card::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 62px;
+      height: 62px;
+      border-radius: 0 13px 0 62px;
+      background: rgba(255,255,255,.12);
+      pointer-events: none;
+    }
+    .quota-title {
+      position: relative;
+      z-index: 1;
+      max-width: 100px;
+      color: #fff;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .quota-tag {
+      position: absolute;
+      z-index: 1;
+      top: 10px;
+      right: 10px;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      color: rgba(255,255,255,.86);
+      background: rgba(255,255,255,.18);
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 850;
+    }
+    .quota-tag.unused {
+      color: #fff3db;
+      background: rgba(0,0,0,.18);
+    }
+    .quota-num {
+      position: relative;
+      z-index: 1;
+      margin-top: 5px;
+      display: flex;
+      align-items: baseline;
+      color: #fff;
+      line-height: 1;
+    }
+    .quota-val,
+    .quota-limit {
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .quota-slash {
+      font-size: 15px;
+      font-weight: 200;
+      color: rgba(255, 255, 255, 0.45);
+      margin: 0 1.5px;
+      display: inline-block;
+      transform: scaleX(0.75);
+    }
+    .quota-limit.infinite {
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 900;
+      color: #ffeeb5;
+      letter-spacing: 0;
+    }
+    .quota-sub {
+      position: relative;
+      z-index: 1;
+      margin-top: 4px;
+      color: rgba(255,255,255,.76);
+      font-size: 10px;
+      line-height: 13px;
+      font-weight: 650;
+      max-width: 84px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .quota-progress {
+      position: absolute;
+      left: 10px;
+      right: 58px;
+      bottom: 12px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.2);
+      overflow: hidden;
+    }
+    .quota-progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: #ffd359;
+    }
+    .quota-action {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      z-index: 2;
+      width: 40px;
+      height: 24px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7b420f;
+      background: #ffecba;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,.12);
+      transition: transform 0.12s ease;
+    }
+    .quota-action:active {
+      transform: scale(0.94);
+    }
+
+    /* Smart Recommendation */
+    .smart-rec {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(255, 190, 80, 0.22);
+      cursor: pointer;
+      transition: transform 0.14s ease;
+    }
+    .smart-rec:active {
+      transform: scale(0.985);
+    }
+    .smart-rec-head {
+      margin-bottom: 7px;
+    }
+    .smart-rec-title {
+      color: #202020;
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 900;
+    }
+    .smart-rec-card {
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      align-items: center;
+      gap: 9px;
+    }
+    .smart-rec-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: linear-gradient(135deg, #ff8a18, #ffb027);
+    }
+    .smart-rec-icon svg {
+      width: 19px;
+      height: 19px;
+      display: block;
+    }
+    .smart-rec-name {
+      color: #212121;
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .smart-rec-sub {
+      color: #8c8177;
+      font-size: 10px;
+      line-height: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .smart-rec-btn {
+      height: 28px;
+      padding: 0 11px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      color: #fff;
+      background: linear-gradient(90deg, #ff8a18, #ffa726);
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 3px 8px rgba(255, 138, 24, 0.25);
+    }
+
+    /* Benefits List Header (与图二原版完全一致的极简纯净标题，绝无多余徽章和顶部按钮) */
+    .benefit-title {
+      margin: 14px 0 8px;
+      color: #232323;
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: 900;
+    }
+
+    /* Feature Rows */
+    .feature-row {
+      min-height: 47px;
+      margin-bottom: 7px;
+      border-radius: 11px;
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto 10px;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.045);
+      cursor: pointer;
+      transition: transform 0.14s var(--spring), background 0.14s ease;
+    }
+    .feature-row:active {
+      transform: scale(0.985);
+      background: #fbf9f6;
+    }
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ff8200;
+      background: linear-gradient(135deg, #fffcf6 0%, #fff1d4 100%);
+      border: 1px solid rgba(255, 180, 52, 0.34);
+      box-shadow: 0 2px 6px rgba(220, 130, 20, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      flex-shrink: 0;
+    }
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+    .feature-copy { min-width: 0; }
+    .feature-name {
+      color: #202020;
+      font-size: 13px;
+      line-height: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .feature-sub {
+      margin-top: 1px;
+      color: #8b8b8b;
+      font-size: 10px;
+      line-height: 13px;
+      font-weight: 620;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .state {
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      color: #85531e;
+      background: #fffaf3;
+      border: 1px solid #e8d3b8;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 840;
+      white-space: nowrap;
+    }
+    .state.unused {
+      color: #a75a00;
+      background: linear-gradient(135deg, #fff0cf 0%, #ffd99b 100%);
+      border-color: #efbc64;
+      box-shadow: 0 3px 7px rgba(255, 138, 24, .12);
+    }
+    .state.on {
+      color: #9b6408;
+      background: #fff5d9;
+      border-color: #e9c66a;
+    }
+    .chev {
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid rgba(40,40,40,.38);
+      border-right: 2px solid rgba(40,40,40,.38);
+      transform: rotate(45deg);
+    }
+
+    /* Extra Privileges Collapsible List (默认隐藏，点击展开按钮才出现) */
+    .extra-list {
+      display: none;
+    }
+    .extra-list.open {
+      display: block;
+    }
+
+    /* More Button (与图二红框完全一致的纯净轻金圆角按钮，默认：查看更多权益，展开后：收起) */
+    .more-btn {
+      width: 100%;
+      height: 40px;
+      margin-top: 5px;
+      border-radius: 12px;
+      color: #a75a00;
+      background: #fff3d2;
+      border: 1px solid rgba(255, 180, 52, .25);
+      font-size: 13.5px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.16s ease, transform 0.14s ease;
+    }
+    .more-btn:active {
+      transform: scale(0.985);
+      background: #ffebbc;
+    }
+
+    /* Bottom Space and Sticky Bottom Bar (与图二原版完全一致的吸底操作栏) */
+    .bottom-space {
+      height: 18px;
+    }
+    .bottom-bar {
+      position: sticky;
+      z-index: 10;
+      bottom: 0;
+      margin: 0 -16px -92px;
+      padding: 16px 16px 13px;
+      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255, 252, 246, .94) 24%, #fffcf6 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .bottom-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .renew,
+    .upgrade-plus {
+      position: relative;
+      overflow: hidden;
+      height: 48px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.16s var(--spring);
+    }
+    .renew:active,
+    .upgrade-plus:active {
+      transform: scale(0.97);
+    }
+    .renew {
+      color: #fff;
+      background:
+        radial-gradient(circle at 24% 12%, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 34%),
+        linear-gradient(90deg, #ffa43a 0%, #ffc45a 54%, #ffdc72 100%);
+      border: 1px solid rgba(244, 181, 74, .34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 9px 18px rgba(231, 159, 48, .18);
+    }
+    .upgrade-plus {
+      color: #fff;
+      background:
+        radial-gradient(circle at 24% 12%, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 34%),
+        linear-gradient(90deg, #ff7948 0%, #ff9140 53%, #ffa84a 100%);
+      border: 1px solid rgba(240, 128, 55, .34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.33), 0 9px 18px rgba(226, 106, 43, .2);
+    }
+    .home-indicator {
+      width: 140px;
+      height: 5px;
+      margin: 12px auto 0;
+      border-radius: 999px;
+      background: #111;
+    }
+
+    /* Detail Sub-page (Route Screen) */
+    .route-panel {
+      position: fixed;
+      z-index: 30;
+      inset: 0;
+      background: rgba(44, 31, 18, .36);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+      display: flex;
+      justify-content: center;
+    }
+    .route-panel.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .route-screen {
+      position: relative;
+      width: min(var(--phone-w), 100vw);
+      height: 100%;
+      overflow-y: auto;
+      padding: 57px 20px 30px;
+      background:
+        radial-gradient(circle at 88% 8%, rgba(255, 205, 73, .27), transparent 26%),
+        linear-gradient(180deg, #fffaf0 0%, #ffffff 58%, #fff8e7 100%);
+      color: #232323;
+      transform: translateX(100%);
+      transition: transform 0.28s var(--spring);
+      scrollbar-width: none;
+    }
+    .route-screen::-webkit-scrollbar { display: none; }
+    .route-panel.open .route-screen {
+      transform: translateX(0);
+    }
+    .route-back {
+      position: absolute;
+      top: 54px;
+      left: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.04);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .route-back:active {
+      transform: scale(0.9);
+      background: rgba(0,0,0,0.08);
+    }
+    .route-back-arrow {
+      width: 11px;
+      height: 11px;
+      border-left: 2.5px solid #242424;
+      border-bottom: 2.5px solid #242424;
+      transform: rotate(45deg);
+      margin-left: 3px;
+    }
+    .route-title {
+      text-align: center;
+      font-size: 18px;
+      line-height: 28px;
+      font-weight: 880;
+    }
+    .route-card {
+      margin-top: 36px;
+      padding: 20px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 12px 34px rgba(166, 100, 23, .12);
+    }
+    .route-kicker {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 900;
+      color: #8c5717;
+      background: #fff4d9;
+    }
+    .route-card h3 {
+      margin: 10px 0 6px;
+      font-size: 22px;
+      line-height: 30px;
+      font-weight: 900;
+    }
+    .route-card p {
+      margin: 0;
+      color: #6d665f;
+      font-size: 14px;
+      line-height: 21px;
+    }
+    .route-sample {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 20px;
+      color: #7b4f17;
+      background: #fffaf0;
+      border: 1px solid rgba(255, 180, 52, .24);
+    }
+    .route-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .route-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fbf9f6;
+      border: 1px solid rgba(0,0,0,.04);
+      cursor: pointer;
+      transition: background 0.14s ease;
+    }
+    .route-list-item:active {
+      background: #f3efe9;
+    }
+    .route-list-item strong {
+      display: block;
+      color: #242424;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 850;
+    }
+    .route-list-item span {
+      display: block;
+      color: #827b73;
+      font-size: 11.5px;
+      line-height: 16px;
+      margin-top: 2px;
+    }
+    .route-pill {
+      flex: none;
+      height: 28px;
+      padding: 0 13px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 850;
+      color: #fff;
+      background: linear-gradient(90deg, #ff8a18, #ffa022);
+      box-shadow: 0 3px 8px rgba(255, 138, 24, .25);
+    }
+    .route-primary {
+      width: 100%;
+      height: 48px;
+      margin-top: 20px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(90deg, #ff8a18, #ffb027);
+      font-size: 16px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 138, 24, .28);
+      cursor: pointer;
+    }
+
+    /* Half-Screen Sheet Modals */
+    .sheet-modal {
+      position: fixed;
+      z-index: 35;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+    .sheet-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sheet-modal-scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(30, 20, 10, .45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .sheet-modal-content {
+      position: relative;
+      z-index: 2;
+      width: min(var(--phone-w), 100vw);
+      max-height: 82vh;
+      overflow-y: auto;
+      border-radius: 26px 26px 0 0;
+      padding: 16px 20px 24px;
+      background: #fff;
+      box-shadow: 0 -12px 36px rgba(0,0,0,.18);
+      transform: translateY(100%);
+      transition: transform 0.28s var(--spring);
+    }
+    .sheet-modal.open .sheet-modal-content {
+      transform: translateY(0);
+    }
+    .modal-handle {
+      width: 38px;
+      height: 5px;
+      margin: 0 auto 14px;
+      border-radius: 999px;
+      background: #ddd5cb;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0,0,0,.06);
+      font-size: 16px;
+      line-height: 1;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .modal-kicker {
+      font-size: 11px;
+      font-weight: 850;
+      color: #ff8a18;
+    }
+    .modal-title {
+      font-size: 19px;
+      line-height: 26px;
+      font-weight: 900;
+      color: #202020;
+      margin-top: 4px;
+    }
+    .modal-sub {
+      font-size: 13px;
+      line-height: 19px;
+      color: #8c8177;
+      margin-top: 4px;
+    }
+    .translate-rows {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .translate-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #fffaf0;
+      border: 1px solid rgba(255, 180, 52, .25);
+      cursor: pointer;
+      transition: background 0.14s ease;
+    }
+    .translate-row:active {
+      background: #fffaea;
+    }
+    .translate-row strong {
+      display: block;
+      font-size: 15px;
+      color: #2b2119;
+    }
+    .translate-row span {
+      display: block;
+      font-size: 12px;
+      color: #9c8369;
+      margin-top: 2px;
+    }
+    .translate-pill {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(90deg, #ff8a18, #ffa42b);
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Renewal Plans */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .plan-card {
+      position: relative;
+      border-radius: 16px;
+      padding: 14px 12px;
+      border: 2px solid transparent;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255, 170, 40, .25);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .plan-card.active {
+      border-color: #ff8a18;
+      background: #fff8eb;
+    }
+    .plan-badge {
+      position: absolute;
+      top: -8px;
+      right: 8px;
+      background: linear-gradient(90deg, #ff5722, #ff8a18);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .plan-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #2b2119;
+    }
+    .plan-price {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 950;
+      color: #ff7a12;
+    }
+    .plan-price small {
+      font-size: 12px;
+      color: #8c8177;
+    }
+    .plan-desc {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #8c8177;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      top: 64px;
+      max-width: 320px;
+      transform: translateX(-50%) translateY(-10px);
+      padding: 9px 18px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(37, 28, 20, .92);
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 780;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s var(--spring);
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Clean High-Fidelity SVG Sprite -->
+  <svg width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true" focusable="false">
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.8" fill="currentColor" opacity="0.22"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="13.2" cy="10.8" r="0.7" fill="#fff"/></symbol>
+    <symbol id="i-language" viewBox="0 0 24 24"><path d="M3 5h8M7 3v4M4.5 9h5c-1 2.2-2.5 3.8-4.5 4.8M7.2 9c.8 2 2.2 3.6 4.3 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="11.5" y="7.5" width="10" height="13" rx="2.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M14 17l2.5-6.5L19 17M14.8 15h3.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-multiLang" viewBox="0 0 24 24"><rect x="3" y="4" width="11" height="11" rx="2.5" fill="currentColor" opacity="0.18"/><rect x="3" y="4" width="11" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 12l2-5 2 5M7.2 10.3h2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="10" y="9" width="11" height="11" rx="2.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M13 12h5M15.5 11v6M13.5 17.5c1-1 2.5-2.2 3.5-2.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-hide" viewBox="0 0 24 24"><path d="M2.5 12c1.8-3.8 5.6-6.5 9.5-6.5s7.7 2.7 9.5 6.5c-1.8 3.8-5.6 6.5-9.5 6.5s-7.7-2.7-9.5-6.5z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.2" fill="currentColor" opacity="0.25"/><path d="M3.5 3.5l17 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 10.5c0-4.14-3.58-7.5-8-7.5s-8 3.36-8 7.5c0 2.37 1.18 4.49 3.03 5.86L6.2 20.3a.8.8 0 0 0 1.1.9l4.1-2c.2.03.4.03.6.03 4.42 0 8-3.36 8-7.5z" fill="currentColor" opacity="0.18"/><path d="M20 10.5c0-4.14-3.58-7.5-8-7.5s-8 3.36-8 7.5c0 2.37 1.18 4.49 3.03 5.86L6.2 20.3a.8.8 0 0 0 1.1.9l4.1-2c.2.03.4.03.6.03 4.42 0 8-3.36 8-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8.5" cy="10.5" r="1.3" fill="currentColor"/><circle cx="12" cy="10.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="10.5" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.2"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.8" fill="currentColor"/></symbol>
+    <symbol id="i-city" viewBox="0 0 24 24"><path d="M3 21h18M5 21V9.5a1.5 1.5 0 0 1 1.5-1.5H10v13M10 21V4.5A1.5 1.5 0 0 1 11.5 3h5A1.5 1.5 0 0 1 18 4.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 7h1M13.5 11h1M13.5 15h1M7.5 12h.5M7.5 16h.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 21h18M5 21V9.5a1.5 1.5 0 0 1 1.5-1.5H10v13M10 21V4.5A1.5 1.5 0 0 1 11.5 3h5A1.5 1.5 0 0 1 18 4.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 7h1M13.5 11h1M13.5 15h1M7.5 12h.5M7.5 16h.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-gender" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 13v7.5M6 17.5h6M15 3h5.5v5.5M19.5 3.5l-6.3 6.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="12" cy="12" rx="4.5" ry="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.2 12h17.6M4.5 7h15M4.5 17h15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3.5" fill="currentColor" opacity="0.12"/><rect x="4" y="3.5" width="16" height="17" rx="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h5.5M8 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16.5" cy="15.5" r="2" fill="currentColor"/></symbol>
+    <symbol id="i-cc" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="13.5" rx="3.5" fill="currentColor" opacity="0.15"/><rect x="2.5" y="4" width="19" height="13.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.5 9.2a2.3 2.3 0 0 0-2.3 2.3v1a2.3 2.3 0 0 0 2.3 2.3M16.8 9.2a2.3 2.3 0 0 0-2.3 2.3v1a2.3 2.3 0 0 0 2.3 2.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 20.5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-infinity" viewBox="0 0 24 24"><path d="M18.18 8C16.48 8 15.08 8.9 13.9 10.32L12 12.55l-1.9-2.23C8.92 8.9 7.52 8 5.82 8 3.16 8 1 10.16 1 12.82c0 2.66 2.16 4.82 4.82 4.82 1.7 0 3.1-.9 4.28-2.32L12 13.09l1.9 2.23c1.18 1.42 2.58 2.32 4.28 2.32 2.66 0 4.82-2.16 4.82-4.82C23 10.16 20.84 8 18.18 8z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.6 6.9 6.9 2.6-6.9 2.6L12 21l-2.6-6.9L2.5 11.5l6.9-2.6L12 2z" fill="currentColor"/><circle cx="19.5" cy="5.5" r="1.5" fill="currentColor"/><circle cx="4.5" cy="18.5" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><path d="M12 2.5l7 3.5v6.5c0 5.2-3.2 9.4-7 10.5-3.8-1.1-7-5.3-7-10.5V6l7-3.5z" fill="currentColor" opacity="0.2"/><path d="M12 2.5l7 3.5v6.5c0 5.2-3.2 9.4-7 10.5-3.8-1.1-7-5.3-7-10.5V6l7-3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4.5-4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 2L4.5 13.5h6l-1.5 8.5 9-11.5h-6l1.5-8.5z" fill="currentColor" opacity="0.22"/><path d="M13.5 2L4.5 13.5h6l-1.5 8.5 9-11.5h-6l1.5-8.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M20.38 3.46l-4.5 2.12a2 2 0 0 1-1.76 0l-4.5-2.12a2 2 0 0 0-1.76 0L3.38 5.6A1.5 1.5 0 0 0 2.5 7v4a1.5 1.5 0 0 0 1.5 1.5h1.2v8A1.5 1.5 0 0 0 6.7 22h10.6a1.5 1.5 0 0 0 1.5-1.5v-8h1.2A1.5 1.5 0 0 0 21.5 11V7a1.5 1.5 0 0 0-.88-1.4l-4.48-2.14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5c.5 1.8 1.8 3 3 3s2.5-1.2 3-3" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor" opacity="0.18"/><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 9.5c.5-1 1.5-1.5 2.5-1.5s2 .5 2.5 1.5M14 9.5c.5-1 1.5-1.5 2.5-1.5s2 .5 2.5 1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.8 13.5c1.1 2.8 2.6 4 4.2 4s3.1-1.2 4.2-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><ellipse cx="6.5" cy="13" rx="1.2" ry="0.8" fill="currentColor"/><ellipse cx="17.5" cy="13" rx="1.2" ry="0.8" fill="currentColor"/></symbol>
+    <symbol id="i-ad" viewBox="0 0 24 24"><path d="M12 2.5l7.5 3.5v6c0 5.2-3.5 9.5-7.5 10.5-4-1-7.5-5.3-7.5-10.5V6L12 2.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 14.5l1.6-4.5h1.2l1.6 4.5M8.6 13.2h2M14.2 10h1.8c1 0 1.6.6 1.6 1.5s-.6 1.5-1.6 1.5h-.8v1.5h-1V10z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4.5 4.5l15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="M2.5 18h19l-1.5-10.5-5 4.5L12 4.5l-3 7.5-5-4.5L2.5 18z" fill="currentColor" opacity="0.22"/><path d="M2.5 18h19l-1.5-10.5-5 4.5L12 4.5l-3 7.5-5-4.5L2.5 18z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="4" r="1.5" fill="currentColor"/><circle cx="3.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="20.5" cy="7.5" r="1.2" fill="currentColor"/><path d="M4 18h16v2.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 20.5V18z" fill="currentColor"/></symbol>
+  </svg>
+
+  <!-- Single Phone Container (与图二原版完全一致的真机容器) -->
+  <main class="phone" id="phone">
+    <!-- Status Bar -->
+    <header class="status" aria-hidden="true">
+      <div class="status-left"><span>10:03</span><span class="silent"></span></div>
+      <div class="status-icons"><div class="signal"><i></i><i></i><i></i><i></i></div><div class="wifi"><i></i></div><div class="battery"><i></i></div></div>
+    </header>
+
+    <!-- Top Nav -->
+    <nav class="nav">
+      <button class="back" id="topNavBack" aria-label="返回"></button>
+      <div class="nav-title">VIP特权</div>
+    </nav>
+
+    <!-- User Profile Header -->
+    <section class="profile">
+      <div class="avatar"></div>
+      <div>
+        <div class="profile-row">
+          <div class="profile-name">zamzam</div>
+          <div class="vip-badge">VIP</div>
+        </div>
+        <div class="profile-status">会员状态: 2026-08-07前一直有效</div>
+      </div>
+    </section>
+
+    <!-- Main Sheet -->
+    <section class="sheet">
+      <h1 class="sheet-title">我的VIP特权</h1>
+
+      <!-- Period Quota Panel (本周 / 本月切换) -->
+      <section class="usage-panel">
+        <div class="usage-head">
+          <div class="usage-title-group">
+            <h2 id="usageTitle">本周权益使用情况</h2>
+            <div class="usage-reset-tip">
+              <svg class="clock-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="resetCountdownLabel">距周一00:00刷新：</span>
+              <span class="countdown-num" id="resetCountdown">5天 07:22:15</span>
+            </div>
+          </div>
+          <div class="period-toggle" role="group" aria-label="切换统计周期">
+            <button type="button" class="period-btn active" id="btnPeriodWeek">本周</button>
+            <button type="button" class="period-btn" id="btnPeriodMonth">本月</button>
+          </div>
+        </div>
+
+        <!-- Summary Tabs -->
+        <div class="usage-tabs">
+          <div class="usage-tab" id="tabUsedPeriod">
+            <span class="tab-label" id="usageTabLabel">本周已用</span>
+            <strong id="totalUsedPeriod">22次</strong>
+          </div>
+          <div class="usage-tab" id="tabSaved">
+            <span class="tab-label">累计节省</span>
+            <strong id="totalSavedVal">¥268</strong>
+          </div>
+          <div class="usage-tab accent" id="tabPerks">
+            <span class="tab-label">专属特权</span>
+            <strong>19项</strong>
+          </div>
+        </div>
+
+        <!-- Quota Cards -->
+        <div class="usage-grid">
+          <!-- 文字翻译 -->
+          <article class="quota-card translate" data-action="translate" role="button" tabindex="0">
+            <div class="quota-title">文字翻译</div>
+            <div class="quota-tag" id="tagTranslate">已使用</div>
+            <div class="quota-num">
+              <span class="quota-val" id="numTranslate">12</span>
+              <span class="quota-slash">/</span>
+              <span class="quota-limit infinite">无限</span>
+            </div>
+            <div class="quota-sub">免查词畅享无限</div>
+            <div class="quota-progress"><div class="quota-progress-bar" style="width: 75%"></div></div>
+            <button class="quota-action" type="button">翻译</button>
+          </article>
+
+          <!-- AI助手 -->
+          <article class="quota-card ai" data-action="ai" role="button" tabindex="0">
+            <div class="quota-title">AI助手</div>
+            <div class="quota-tag" id="tagAi">已使用</div>
+            <div class="quota-num">
+              <span class="quota-val" id="numAi">2</span>
+              <span class="quota-slash">/</span>
+              <span class="quota-limit" id="limitAi">10</span>
+            </div>
+            <div class="quota-sub" id="subAi">本周剩余 8 次</div>
+            <div class="quota-progress"><div class="quota-progress-bar" id="barAi" style="width: 20%"></div></div>
+            <button class="quota-action" type="button">去用</button>
+          </article>
+
+          <!-- 每天新聊天 -->
+          <article class="quota-card" data-action="chat" role="button" tabindex="0">
+            <div class="quota-title">每天新聊天</div>
+            <div class="quota-tag" id="tagChat">已使用</div>
+            <div class="quota-num">
+              <span class="quota-val" id="numChat">8</span>
+              <span class="quota-slash">/</span>
+              <span class="quota-limit" id="limitChat">25</span>
+            </div>
+            <div class="quota-sub" id="subChat">今日剩余 17 次</div>
+            <div class="quota-progress"><div class="quota-progress-bar" id="barChat" style="width: 32%"></div></div>
+            <button class="quota-action" type="button">去聊</button>
+          </article>
+
+          <!-- 附近语伴 -->
+          <article class="quota-card search" data-action="nearby" role="button" tabindex="0">
+            <div class="quota-title">附近语伴</div>
+            <div class="quota-tag unused" id="tagNearby">未体验</div>
+            <div class="quota-num">
+              <span class="quota-val" id="numNearby">0</span>
+              <span class="quota-slash">/</span>
+              <span class="quota-limit infinite">无限</span>
+            </div>
+            <div class="quota-sub" id="subNearby">发现附近的人</div>
+            <div class="quota-progress"><div class="quota-progress-bar" id="barNearby" style="width: 0%"></div></div>
+            <button class="quota-action" type="button">去看</button>
+          </article>
+        </div>
+
+        <!-- Smart Recommendation -->
+        <div class="smart-rec" data-route="city" role="button" tabindex="0">
+          <div class="smart-rec-head">
+            <div class="smart-rec-title">推荐你试试</div>
+          </div>
+          <div class="smart-rec-card">
+            <div class="smart-rec-icon"><svg><use href="#i-city"/></svg></div>
+            <div>
+              <div class="smart-rec-name">搜索城市语伴</div>
+              <div class="smart-rec-sub">按城市找语伴，适合主动探索</div>
+            </div>
+            <div class="smart-rec-btn">去试试</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Benefits Title (与图二原版完全一致的极简纯净标题，绝无多余徽章和顶部按钮) -->
+      <div class="benefit-title">全部VIP特权</div>
+
+      <!-- Feature List: 初始展示前 6 项 -->
+      <section class="feature-list">
+        <div class="feature-row" data-route="postLanguage" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-list"/></svg></div><div class="feature-copy"><div class="feature-name">筛选任意语言帖文</div><div class="feature-sub">无限切换动态语言搜索</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+        <div class="feature-row" data-route="liveCaption" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-cc"/></svg></div><div class="feature-copy"><div class="feature-name">直播语聊实时字幕</div><div class="feature-sub">VIP专属聊天字幕功能，让沟通更流畅</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+        <div class="feature-row" data-route="liveTime" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-infinity"/></svg></div><div class="feature-copy"><div class="feature-name">直播语聊无限时长</div><div class="feature-sub">直播语聊轻松畅聊不受限，结交更多语伴</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+        <div class="feature-row" data-route="nearby" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-pin"/></svg></div><div class="feature-copy"><div class="feature-name">附近语伴</div><div class="feature-sub">与附近用户联系并亲自见面</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+        <div class="feature-row" data-route="city" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-city"/></svg></div><div class="feature-copy"><div class="feature-name">搜索城市语伴</div><div class="feature-sub">和任意城市的朋友谈天说地</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+        <div class="feature-row" data-route="gender" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-gender"/></svg></div><div class="feature-copy"><div class="feature-name">性别搜索</div><div class="feature-sub">通过性别筛选找到心仪语伴</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+
+        <!-- Hidden Extra 13 Benefits (点击展开后显示) -->
+        <div class="extra-list" id="extraList">
+          <div class="feature-row" data-route="languageSearch" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-globe"/></svg></div><div class="feature-copy"><div class="feature-name">搜索任意语言语伴</div><div class="feature-sub">搜索任意条件的全球语伴</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="invisible" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-hide"/></svg></div><div class="feature-copy"><div class="feature-name">隐身访问</div><div class="feature-sub">访问足迹轻松隐藏</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="languages" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-multiLang"/></svg></div><div class="feature-copy"><div class="feature-name">学/教多门语言</div><div class="feature-sub">260 种语言任你选择</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="profileDecor" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-spark"/></svg></div><div class="feature-copy"><div class="feature-name">装扮个人主页</div><div class="feature-sub">随心所欲定制你的个人页背景图</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="chatBg" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-shirt"/></svg></div><div class="feature-copy"><div class="feature-name">装扮聊天背景</div><div class="feature-sub">彰显个性</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="emoji" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-smile"/></svg></div><div class="feature-copy"><div class="feature-name">专属Q萌表情</div><div class="feature-sub">让你的聊天更有趣</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="monthlyGift" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-crown"/></svg></div><div class="feature-copy"><div class="feature-name">每月会员福利</div><div class="feature-sub">在会员有效期内，享受每月专属福利</div></div><div class="state unused">未体验</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="visitors" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-eye"/></svg></div><div class="feature-copy"><div class="feature-name">查看访客</div><div class="feature-sub">解锁对你感兴趣的小伙伴</div></div><div class="state">已使用</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="translate" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-language"/></svg></div><div class="feature-copy"><div class="feature-name">无限次文字翻译</div><div class="feature-sub">聊天看帖随时翻译，边看边学</div></div><div class="state">已使用</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="chat" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-chat"/></svg></div><div class="feature-copy"><div class="feature-name">每天新聊天</div><div class="feature-sub">每天能和 25 个新语伴沟通</div></div><div class="state">已使用</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="badge" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-badge"/></svg></div><div class="feature-copy"><div class="feature-name">身份标识</div><div class="feature-sub">专属 VIP 标识，彰显尊贵VIP身份</div></div><div class="state on">已开启</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="boost" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-bolt"/></svg></div><div class="feature-copy"><div class="feature-name">增加曝光机会</div><div class="feature-sub">让更多人看到你，比别人多倍匹配机会</div></div><div class="state on">已开启</div><div class="chev"></div></div>
+          <div class="feature-row" data-route="adFree" role="button" tabindex="0"><div class="feature-icon"><svg><use href="#i-ad"/></svg></div><div class="feature-copy"><div class="feature-name">无广告</div><div class="feature-sub">自动屏蔽广告，让你的时间更高效</div></div><div class="state on">已开启</div><div class="chev"></div></div>
+        </div>
+
+        <!-- More Button (与图二红框完全一致的纯净展开/收起按钮) -->
+        <button class="more-btn" id="moreBtn" type="button">查看更多权益</button>
+      </section>
+
+      <!-- Bottom Space: 留白避让，保证滚动到底时按钮完美浮于底栏上方 -->
+      <div class="bottom-space"></div>
+
+      <!-- Permanent Fixed Bottom Actions Bar (与图二完全一致的吸底操作栏) -->
+      <div class="bottom-bar" id="bottomBar">
+        <div class="bottom-actions">
+          <button class="renew" id="btnRenew" data-route="renew" type="button">立即续费</button>
+          <button class="upgrade-plus" id="btnUpgradePlus" data-route="upgradePlus" type="button">升级PLUS</button>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sub-page Detail (Smooth Push Transition covering the frame) -->
+  <section class="route-panel" id="routePanel" aria-hidden="true">
+    <div class="route-screen">
+      <button class="route-back" id="routeBack" type="button" aria-label="返回">
+        <span class="route-back-arrow"></span>
+      </button>
+      <div class="route-title" id="routeTitle">权益详情</div>
+      <div class="route-card">
+        <div class="route-kicker" id="routeKicker">VIP 权益</div>
+        <h3 id="routeHeading">每天新聊天</h3>
+        <p id="routeDesc">跳转到语伴推荐列表，继续认识新的语言伙伴。</p>
+        <div class="route-sample" id="routeSample">今日还可发起 17 次新聊天。</div>
+        <div class="route-list" id="routeList"></div>
+        <button class="route-primary" id="routePrimary" type="button">开始使用</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Half-Screen Modal: 文字翻译 (Firmly docked to bottom edge) -->
+  <section class="sheet-modal" id="translateModal" aria-hidden="true">
+    <div class="sheet-modal-scrim" id="translateScrim"></div>
+    <div class="sheet-modal-content" role="dialog" aria-modal="true">
+      <div class="modal-handle"></div>
+      <button class="modal-close" id="translateClose" type="button" aria-label="关闭">×</button>
+      <div class="modal-kicker">VIP权益</div>
+      <div class="modal-title">打开文字翻译</div>
+      <div class="modal-sub">进入翻译页，可翻译聊天消息、动态内容。</div>
+      <div class="translate-rows">
+        <div class="translate-row" data-translate-jump="chat">
+          <div>
+            <strong>聊天翻译</strong>
+            <span>看懂语伴消息</span>
+          </div>
+          <div class="translate-pill">进入</div>
+        </div>
+        <div class="translate-row" data-translate-jump="feed">
+          <div>
+            <strong>动态翻译</strong>
+            <span>浏览不同语言内容</span>
+          </div>
+          <div class="translate-pill">进入</div>
+        </div>
+      </div>
+      <div class="home-indicator" style="margin-top: 18px;"></div>
+    </div>
+  </section>
+
+  <!-- Half-Screen Modal: 续费VIP (Firmly docked to bottom edge) -->
+  <section class="sheet-modal" id="renewModal" aria-hidden="true">
+    <div class="sheet-modal-scrim" id="renewScrim"></div>
+    <div class="sheet-modal-content" role="dialog" aria-modal="true">
+      <div class="modal-handle"></div>
+      <button class="modal-close" id="renewClose" type="button" aria-label="关闭">×</button>
+      <div class="modal-kicker">VIP权益</div>
+      <div class="modal-title">续费 VIP</div>
+      <div class="modal-sub">当前 VIP 有效期至 2026-08-07，续费后时间顺延累加。</div>
+      <div class="plan-grid">
+        <div class="plan-card active" onclick="selectPlan(this)">
+          <span class="plan-badge">限时 8 折</span>
+          <div class="plan-title">连续包年</div>
+          <div class="plan-price">¥198<small>/年</small></div>
+          <div class="plan-desc">合 ¥16.5/月，立省 ¥138</div>
+        </div>
+        <div class="plan-card" onclick="selectPlan(this)">
+          <div class="plan-title">连续包月</div>
+          <div class="plan-price">¥28<small>/月</small></div>
+          <div class="plan-desc">随时可取消自动续费</div>
+        </div>
+      </div>
+      <button class="route-primary" style="margin-top:16px;" onclick="confirmRenewal()">确认续费</button>
+      <div class="home-indicator" style="margin-top: 18px;"></div>
+    </div>
+  </section>
+
+  <!-- Half-Screen Modal: 升级PLUS (Firmly docked to bottom edge) -->
+  <section class="sheet-modal" id="plusModal" aria-hidden="true">
+    <div class="sheet-modal-scrim" id="plusScrim"></div>
+    <div class="sheet-modal-content" role="dialog" aria-modal="true">
+      <div class="modal-handle"></div>
+      <button class="modal-close" id="plusClose" type="button" aria-label="关闭">×</button>
+      <div class="modal-kicker">VIP+ 专属权益</div>
+      <div class="modal-title">升级 VIP+</div>
+      <div class="modal-sub">升级后立即解锁更高阶会员权益。</div>
+      <div style="margin-top:14px;background:#fff8ec;border:1px solid #ffd899;border-radius:15px;padding:12px 14px;">
+        <div style="font-weight:900;color:#9c5800;font-size:13px;">升级方案</div>
+        <div style="font-size:12px;color:#785324;margin-top:2px;">基于当前 VIP 剩余天数，补差价仅需 ¥49 升级至包年 VIP+</div>
+      </div>
+      <button class="route-primary" style="margin-top:16px;background:linear-gradient(90deg, #ff7948, #ffa84a);" onclick="confirmPlus()">查看升级方案</button>
+      <div class="home-indicator" style="margin-top: 18px;"></div>
+    </div>
+  </section>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script>
+    // Authentic Full Route Database
+    const routeData = {
+      visitors: ["我-访客页面", "已使用", "查看谁来过", "进入访客页，查看最近访问你主页的人。", "解锁对你感兴趣的小伙伴。", "查看访客", [["最近访问", "优先显示刚看过你的人"], ["高匹配访客", "更适合继续聊天"], ["打招呼", "跳到聊天页继续沟通"]]],
+      languages: ["我-编辑页", "未体验", "管理学习/教授语言", "进入我的编辑页，添加学习语言和可教授语言。", "260 种语言任你选择。", "管理语言", [["学习语言", "添加新的目标语言"], ["教授语言", "让更多人找到你"], ["展示顺序", "主页优先展示常用语言"]]],
+      invisible: ["隐身访问设置页", "未体验", "开启隐身访问", "访问他人主页时，可选择不留下访客记录。", "访问足迹轻松隐藏。", "开启隐身", [["隐身浏览", "访问不展示给对方"], ["随时关闭", "需要互动时恢复正常"], ["隐私说明", "只影响访客记录展示"]]],
+      ai: ["AI翻译助手", "2/10", "打开 AI 翻译助手", "进入 AI 翻译助手页面，提供翻译润色、聊天改写和表达替换。", "示例：Hi Kiana, can you help me phrase this more naturally?", "立即调用", [["聊天润色", "把表达改得更自然地道"], ["翻译改写", "换成更口语化的说法"], ["表达替换", "改成更轻松或更礼貌的语气"]]],
+      chat: ["找语伴-全部页面", "8/25", "每天新聊天", "进入找语伴-全部页面，继续认识新的语言伙伴。", "每天能和 25 个新语伴沟通。", "发起聊天", [["全部语伴", "浏览推荐的活跃语伴"], ["语言互补", "你学英语，对方学中文"], ["推荐理由", "展示契合度和共同兴趣"]]],
+      translate: ["文字翻译入口选择", "12/无限", "无限次文字翻译", "聊天看帖随时翻译，边看边学。", "随时随地一键翻译对方发送的消息。", "打开翻译", [["聊天翻译", "直接在聊天气泡中翻译"], ["动态翻译", "浏览全球最新动态"]]],
+      nearby: ["找语伴-附近页面", "未体验", "附近语伴", "进入找语伴-附近列表，筛选同城或邻近用户。", "与附近用户联系并亲自见面。", "查看附近语伴", [["同城推荐", "查看身边的语伴动态"], ["线下交流", "更方便面对面练习口语"], ["位置设置", "自定义展示城市"]]],
+      city: ["找语伴-城市搜索页", "未体验", "搜索城市语伴", "进入找语伴搜索页，切换目标城市寻找语伴。", "和任意城市的朋友谈天说地。", "搜索城市", [["热门城市", "快速选择全球重点语言城市"], ["多城漫游", "随心切换目标地点"], ["即时开聊", "直达语伴个人资料"]]],
+      postLanguage: ["动态-语言筛选", "未体验", "筛选任意语言帖文", "进入动态流，切换目标语言阅读帖文。", "无限切换动态语言搜索。", "前往动态", [["按语言看帖", "只看目标语言练习阅读"], ["双语切换", "随时对照学习"], ["发帖筛选", "更精准找到互动人群"]]],
+      liveCaption: ["直播间-实时字幕", "未体验", "直播语聊实时字幕", "进入直播语聊房，自动开启 VIP 字幕悬浮层。", "VIP专属聊天字幕功能，让沟通更流畅。", "体验字幕", [["双语字幕", "实时语音转写与对照翻译"], ["字幕字号", "支持调节字体尺寸"], ["长句分段", "语速快也能跟得上节奏"]]],
+      liveTime: ["直播间-时长说明", "未体验", "直播语聊无限时长", "进入语聊房，畅聊不被 30 分钟限时中断。", "直播语聊轻松畅聊不受限，结交更多语伴。", "进入语聊房", [["无限时长", "无需消耗加时卡"], ["多人麦位", "支持长时间语聊互动"], ["连麦特权", "优先连麦提示"]]],
+      gender: ["找语伴-筛选设置", "未体验", "性别搜索", "进入筛选面板，勾选只看男生或女生。", "通过性别筛选找到心仪语伴。", "设置筛选", [["只看女生", "更适合女性学习圈子"], ["只看男生", "定向沟通"], ["随时重置", "一键恢复全部显示"]]],
+      languageSearch: ["找语伴-高级筛选", "未体验", "搜索任意语言语伴", "进入高级搜索页，按母语与学习语言交叉查找。", "搜索任意条件的全球语伴。", "高级搜索", [["多语言交叉", "查找同时会西语和英语的语伴"], ["母语精筛", "只联系 Native Speaker"], ["熟练度筛选", "匹配适合的学习阶段"]]],
+      profileDecor: ["个人主页装扮页", "未体验", "装扮个人主页", "进入装扮中心，选择 VIP 专属封面壁纸。", "随心所欲定制你的个人页背景图。", "去装扮", [["动态封面", "多款 VIP 专属光效壁纸"], ["主页挂件", "彰显尊贵身份"], ["自定义上传", "无压缩高清展示"]]],
+      chatBg: ["聊天装扮中心", "未体验", "装扮聊天背景", "进入聊天设置，为不同语伴设置专属聊天气泡与底图。", "彰显个性。", "选择背景", [["专属气泡", "暖金与轻奢质感气泡"], ["高清背景", "护眼与学习氛围底图"], ["独立设置", "不同语伴可设不同背景"]]],
+      emoji: ["表情商店-VIP专区", "未体验", "专属Q萌表情", "进入表情包列表，解锁全部 VIP 动态萌趣表情。", "让你的聊天更有趣。", "下载表情", [["动态萌宠", "高画质语伴问候表情"], ["学习梗图", "练习口语更生动"], ["永久免费", "VIP 期内无限下载使用"]]],
+      monthlyGift: ["福利中心", "未体验", "每月会员福利", "进入福利专区，领取本月专属道具礼包。", "在会员有效期内，享受每月专属福利。", "领取福利", [["改名卡", "每月免费领取 1 张"], ["置顶卡", "发帖曝光翻倍"], ["加时卡", "赠送好友语聊时长"]]],
+      badge: ["个人资料-身份标识", "已开启", "身份标识", "VIP 专属徽章已在个人主页、聊天气泡、动态评论区常驻展示。", "专属 VIP 标识，彰显尊贵VIP身份。", "查看展示样式", [["昵称金标", "全局专属高贵金标识"], ["动态专属框", "发帖自带流光边框"], ["搜索靠前", "列表更醒目易识别"]]],
+      boost: ["曝光加速服务", "已开启", "增加曝光机会", "系统已为你开启智能曝光加权，每日推荐次数翻倍。", "让更多人看到你，比别人多倍匹配机会。", "查看曝光报告", [["推荐加权", "动态与主页推荐权重 +80%"], ["活跃时段", "根据语伴在线时段智能推流"], ["匹配加速", "收到打招呼概率显著提升"]]],
+      adFree: ["广告屏蔽设置", "已开启", "无广告", "已自动为你过滤启动页广告、信息流插播广告及聊天横幅。", "自动屏蔽广告，让你的时间更高效。", "免打扰说明", [["纯净浏览", "沉浸式语言学习不受打扰"], ["极速加载", "去除广告后页面打开更快"], ["永久清爽", "会员期内全功能纯净无弹窗"]]],
+      renew: ["收银台-VIP续费", "有效期至2026-08-07", "续费 VIP 会员", "续费后有效期直接在原有到期日后顺延累加。", "支持连续包年立省 ¥138。", "立即支付", [["自动续费", "随时可取消，到期不中断"], ["特权保留", "现有额度与权益持续生效"], ["安全支付", "支持微信/支付宝/银行卡"]]],
+      upgradePlus: ["收银台-升级PLUS", "升级立省 ¥49", "升级 HelloTalk VIP+ 钻石会员", "解锁更大额度：文字翻译无限次、AI润色不限次、每日新聊天50人。", "VIP+ 会员畅享全部顶配尊享权益。", "立即升级", [["尊贵钻石标", "比普通 VIP 更加醒目"], ["专属人工语伴客服", "1对1答疑解惑"], ["离线离线包", "出国旅游全语种离线可用"]]]
+    };
+
+    // State Data for Period Toggle
+    const periodData = {
+      week: {
+        title: "本周权益使用情况",
+        label: "本周已用",
+        total: "22次",
+        saved: "¥268",
+        translate: { used: 12, limit: "无限", sub: "免查词畅享无限" },
+        ai: { used: 2, limit: "10", sub: "本周剩余 8 次", pct: "20%" },
+        chat: { used: 8, limit: "25", sub: "今日剩余 17 次", pct: "32%" },
+        nearby: { used: 0, limit: "无限", sub: "发现附近的人", pct: "0%" }
+      },
+      month: {
+        title: "本月权益使用情况",
+        label: "本月已用",
+        total: "92次",
+        saved: "¥268",
+        translate: { used: 48, limit: "无限", sub: "免查词畅享无限" },
+        ai: { used: 9, limit: "40", sub: "本月剩余 31 次", pct: "22.5%" },
+        chat: { used: 34, limit: "100", sub: "今日剩余 17 次", pct: "34%" },
+        nearby: { used: 1, limit: "无限", sub: "已探索周边语伴", pct: "100%" }
+      }
+    };
+    let currentPeriod = "week";
+
+    // DOM Elements
+    const phone = document.getElementById("phone");
+    const extraList = document.getElementById("extraList");
+    const moreBtn = document.getElementById("moreBtn");
+    const routePanel = document.getElementById("routePanel");
+    const routeBack = document.getElementById("routeBack");
+    const routeTitle = document.getElementById("routeTitle");
+    const routeKicker = document.getElementById("routeKicker");
+    const routeHeading = document.getElementById("routeHeading");
+    const routeDesc = document.getElementById("routeDesc");
+    const routeSample = document.getElementById("routeSample");
+    const routeList = document.getElementById("routeList");
+    const routePrimary = document.getElementById("routePrimary");
+
+    const translateModal = document.getElementById("translateModal");
+    const translateClose = document.getElementById("translateClose");
+    const translateScrim = document.getElementById("translateScrim");
+    const renewModal = document.getElementById("renewModal");
+    const renewClose = document.getElementById("renewClose");
+    const renewScrim = document.getElementById("renewScrim");
+    const plusModal = document.getElementById("plusModal");
+    const plusClose = document.getElementById("plusClose");
+    const plusScrim = document.getElementById("plusScrim");
+    const btnRenew = document.getElementById("btnRenew");
+    const btnUpgradePlus = document.getElementById("btnUpgradePlus");
+    const topNavBack = document.getElementById("topNavBack");
+    const toast = document.getElementById("toast");
+
+    let toastTimer = null;
+    let activeRoute = null;
+
+    // 官方功能落地网址映射表 (图一全部模块均跳转到网站)
+    const MODULE_URLS = {
+      // 核心额度权益
+      ai: "https://www.hellotalk.com",
+      chat: "https://web.hellotalk.com",
+      nearby: "https://www.hellotalk.com",
+      translate: "https://www.hellotalk.com",
+      city: "https://www.hellotalk.com",
+      
+      // 全部VIP特权
+      postLanguage: "https://www.hellotalk.com",
+      liveCaption: "https://www.hellotalk.com",
+      liveTime: "https://www.hellotalk.com",
+      gender: "https://www.hellotalk.com",
+      languageSearch: "https://www.hellotalk.com",
+      invisible: "https://www.hellotalk.com",
+      languages: "https://www.hellotalk.com",
+      profileDecor: "https://www.hellotalk.com",
+      chatBg: "https://www.hellotalk.com",
+      emoji: "https://www.hellotalk.com",
+      monthlyGift: "https://www.hellotalk.com/vip",
+      visitors: "https://www.hellotalk.com",
+      badge: "https://www.hellotalk.com/vip",
+      boost: "https://www.hellotalk.com",
+      adFree: "https://www.hellotalk.com",
+
+      // 商业化与系统
+      renew: "https://www.hellotalk.com/vip",
+      upgradePlus: "https://www.hellotalk.com/vip",
+      back: "https://www.hellotalk.com",
+      profile: "https://www.hellotalk.com"
+    };
+
+    function jumpToWebsite(key) {
+      const url = MODULE_URLS[key] || "https://www.hellotalk.com";
+      try {
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          window.location.href = url;
+        }
+      } catch (err) {
+        window.location.href = url;
+      }
+    }
+
+    function showToast(msg) {
+      // 禁用 Toast：按用户明确要求，图一中所有模块均直接跳转到对应网站，彻底废除 Toast 弹窗
+      return;
+    }
+
+    // Accurate Countdown Timer
+    function updateCountdown() {
+      const now = new Date();
+      const labelEl = document.getElementById("resetCountdownLabel");
+      const numEl = document.getElementById("resetCountdown");
+      if (!labelEl || !numEl) return;
+
+      if (currentPeriod === "week") {
+        labelEl.textContent = "距周一00:00刷新：";
+        const currentDay = now.getDay();
+        const daysUntilMonday = ((8 - (currentDay === 0 ? 7 : currentDay)) % 7) || 7;
+        const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday, 0, 0, 0, 0);
+        let diffMs = target - now;
+        if (diffMs < 0) diffMs = 0;
+
+        const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const h = String(Math.floor((diffMs / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+        const m = String(Math.floor((diffMs / (1000 * 60)) % 60)).padStart(2, '0');
+        const s = String(Math.floor((diffMs / 1000) % 60)).padStart(2, '0');
+        numEl.textContent = `${d}天 ${h}:${m}:${s}`;
+      } else {
+        labelEl.textContent = "距下月1日刷新：";
+        const target = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+        let diffMs = target - now;
+        if (diffMs < 0) diffMs = 0;
+
+        const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const h = String(Math.floor((diffMs / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+        const m = String(Math.floor((diffMs / (1000 * 60)) % 60)).padStart(2, '0');
+        const s = String(Math.floor((diffMs / 1000) % 60)).padStart(2, '0');
+        numEl.textContent = `${d}天 ${h}:${m}:${s}`;
+      }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // Switch between Week and Month
+    function switchPeriod(period) {
+      if (currentPeriod === period) return;
+      currentPeriod = period;
+
+      document.getElementById("btnPeriodWeek").classList.toggle("active", period === "week");
+      document.getElementById("btnPeriodMonth").classList.toggle("active", period === "month");
+
+      const d = periodData[period];
+      document.getElementById("usageTitle").textContent = d.title;
+      document.getElementById("usageTabLabel").textContent = d.label;
+      document.getElementById("totalUsedPeriod").textContent = d.total;
+      document.getElementById("totalSavedVal").textContent = d.saved;
+
+      document.getElementById("numTranslate").textContent = d.translate.used;
+      document.getElementById("numAi").textContent = d.ai.used;
+      document.getElementById("limitAi").textContent = d.ai.limit;
+      document.getElementById("subAi").textContent = d.ai.sub;
+      document.getElementById("barAi").style.width = d.ai.pct;
+
+      document.getElementById("numChat").textContent = d.chat.used;
+      document.getElementById("limitChat").textContent = d.chat.limit;
+      document.getElementById("subChat").textContent = d.chat.sub;
+      document.getElementById("barChat").style.width = d.chat.pct;
+
+      document.getElementById("numNearby").textContent = d.nearby.used;
+      document.getElementById("subNearby").textContent = d.nearby.sub;
+      document.getElementById("barNearby").style.width = d.nearby.pct;
+      document.getElementById("tagNearby").className = d.nearby.used > 0 ? "quota-tag" : "quota-tag unused";
+      document.getElementById("tagNearby").textContent = d.nearby.used > 0 ? "已使用" : "未体验";
+
+      updateCountdown();
+    }
+
+    document.getElementById("btnPeriodWeek").addEventListener("click", () => switchPeriod("week"));
+    document.getElementById("btnPeriodMonth").addEventListener("click", () => switchPeriod("month"));
+
+    function updateTotalUsedPeriod(add = 1) {
+      const curNum = parseInt(periodData[currentPeriod].total, 10) || 0;
+      const newNum = curNum + add;
+      periodData[currentPeriod].total = newNum + "次";
+      document.getElementById("totalUsedPeriod").textContent = periodData[currentPeriod].total;
+    }
+
+    // Route Navigation (Push Screen)
+    function openRoute(key) {
+      const data = routeData[key];
+      if (!data) return;
+      activeRoute = key;
+      routeTitle.textContent = data[2];
+      routeHeading.textContent = data[2];
+      routeKicker.textContent = (key === "renew" || key === "upgradePlus") ? "会员收银台" : (data[1] === "已开启" ? "VIP尊享" : "VIP特权");
+      routeDesc.textContent = data[3];
+      routeSample.textContent = data[4];
+      routePrimary.textContent = data[5];
+      routeList.innerHTML = data[6].map(([name, desc]) => `
+        <div class="route-list-item" onclick="triggerSubFeature('${name}')">
+          <div><strong>${name}</strong><span>${desc}</span></div>
+          <div class="route-pill">进入</div>
+        </div>
+      `).join("");
+
+      const screen = document.querySelector(".route-screen");
+      if (screen) screen.scrollTop = 0;
+      phone.style.overflowY = "hidden";
+      routePanel.classList.add("open");
+      routePanel.setAttribute("aria-hidden", "false");
+    }
+
+    function closeRoute() {
+      phone.style.overflowY = "auto";
+      routePanel.classList.remove("open");
+      routePanel.setAttribute("aria-hidden", "true");
+    }
+
+    function triggerSubFeature(name) {
+      showToast(`已开启：${name}`);
+    }
+
+    // Modal Helper: open and close
+    function openModal(modalEl) {
+      phone.style.overflowY = "hidden";
+      modalEl.classList.add("open");
+      modalEl.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(modalEl) {
+      phone.style.overflowY = "auto";
+      modalEl.classList.remove("open");
+      modalEl.setAttribute("aria-hidden", "true");
+    }
+
+    // Quota Action Handlers (图一中的所有模块均直接跳转对应网站，绝对不弹 Toast)
+    document.querySelectorAll("[data-action]").forEach(el => {
+      el.addEventListener("click", (e) => {
+        const action = el.dataset.action;
+        if (action === "ai") {
+          const cur = periodData[currentPeriod].ai;
+          cur.used += 1;
+          document.getElementById("numAi").textContent = cur.used;
+          updateTotalUsedPeriod(1);
+          jumpToWebsite("ai");
+        } else if (action === "chat") {
+          const cur = periodData[currentPeriod].chat;
+          cur.used += 1;
+          document.getElementById("numChat").textContent = cur.used;
+          updateTotalUsedPeriod(1);
+          jumpToWebsite("chat");
+        } else if (action === "translate") {
+          periodData[currentPeriod].translate.used += 1;
+          if (currentPeriod === "week") periodData.month.translate.used += 1;
+          document.getElementById("numTranslate").textContent = periodData[currentPeriod].translate.used;
+          updateTotalUsedPeriod(1);
+          jumpToWebsite("translate");
+        } else if (action === "nearby") {
+          const cur = periodData[currentPeriod].nearby;
+          cur.used += 1;
+          document.getElementById("numNearby").textContent = cur.used;
+          updateTotalUsedPeriod(1);
+          jumpToWebsite("nearby");
+        } else {
+          jumpToWebsite(action);
+        }
+      });
+    });
+
+    // Feature Rows Click Handling (图一全部特权点击直接跳转到网站，绝不弹 Toast)
+    document.querySelectorAll(".feature-row[data-route]").forEach(row => {
+      row.addEventListener("click", () => {
+        const routeKey = row.dataset.route;
+        jumpToWebsite(routeKey);
+      });
+    });
+
+    // Smart Rec (推荐你试试模块直接跳转到网站)
+    const smartRecEl = document.querySelector(".smart-rec");
+    if (smartRecEl) {
+      smartRecEl.addEventListener("click", () => {
+        jumpToWebsite("city");
+      });
+    }
+
+    // User Profile Row (顶部用户信息点击跳转)
+    const userRowEl = document.querySelector(".user-row");
+    if (userRowEl) {
+      userRowEl.style.cursor = "pointer";
+      userRowEl.addEventListener("click", () => jumpToWebsite("profile"));
+    }
+
+    // Top Navigation Back Button (返回个人中心跳转网站)
+    topNavBack.addEventListener("click", () => jumpToWebsite("back"));
+
+    // Renew & Plus Fixed Action Buttons (立即续费与升级PLUS直接跳转到网站)
+    btnRenew.addEventListener("click", () => jumpToWebsite("renew"));
+    btnUpgradePlus.addEventListener("click", () => jumpToWebsite("upgradePlus"));
+
+    // Expand / Collapse Extra List (与图二原版完全一致的轻量原生切换)
+    moreBtn.addEventListener("click", () => {
+      const open = extraList.classList.toggle("open");
+      moreBtn.textContent = open ? "收起" : "查看更多权益";
+    });
+
+    // Keyboard Arrow / Page Navigation
+    window.addEventListener("keydown", (e) => {
+      if (e.target.matches("input, textarea")) return;
+      if (e.key === "ArrowDown") {
+        phone.scrollBy({ top: 110, behavior: "smooth" });
+      } else if (e.key === "ArrowUp") {
+        phone.scrollBy({ top: -110, behavior: "smooth" });
+      } else if (e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        phone.scrollBy({ top: 360, behavior: "smooth" });
+      } else if (e.key === "PageUp") {
+        e.preventDefault();
+        phone.scrollBy({ top: -360, behavior: "smooth" });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        phone.scrollTo({ top: phone.scrollHeight, behavior: "smooth" });
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        phone.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  </script>
+</body>
+</html>
